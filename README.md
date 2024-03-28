@@ -67,4 +67,52 @@ return {
   },
 }
 ```
+The api key can also be passed as a function. This makes for a lot of fun initializations.
+E.g:
+```lua
+turn {
+  "mrlys/assistant.nvim",
+  opts = {
+    api_key = function() return os.getenv("OPENAI_API_KEY")end,
+    sleep_ms = 25,
+    render_hook = function(...) end,
+  },
+  build = "make all"
+  keys = {
+    {
+      "<leader>t",
+      mode = { "n", "x", "o" },
+      function()
+        require("assistant"):ToggleAssistant()
+      end,
+      desc = "Open or close Assistant chat window",
+    },
+  },
+}
+```
+or
+
+```lua
+turn {
+  "mrlys/assistant.nvim",
+  opts = {
+    api_key = function() 
+      return vim.fn.systemlist('op read "op://Private/OPENAI_API_KEY/credential"')[1]
+    end,
+    sleep_ms = 25,
+    render_hook = function(...) end,
+  },
+  build = "make all"
+  keys = {
+    {
+      "<leader>t",
+      mode = { "n", "x", "o" },
+      function()
+        require("assistant"):ToggleAssistant()
+      end,
+      desc = "Open or close Assistant chat window",
+    },
+  },
+}
+```
 

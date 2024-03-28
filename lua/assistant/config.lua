@@ -15,7 +15,9 @@ function M._setup()
 	-- clean content from previous in case of broken chat history
 	-- FIXME
 	io.open(vim.fn.stdpath("data") .. ".chat", "w"):close()
-
+	if type(M._options.api_key) == "function" then
+		M._options.api_key = M._options.api_key()
+	end
 	M.options = vim.tbl_deep_extend("force", {}, {}, M.options or {}, M._options or {})
 	assert(M.options.api_key ~= nil, "Api key  needs to be present!")
 
