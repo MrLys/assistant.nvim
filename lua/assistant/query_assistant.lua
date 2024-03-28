@@ -12,7 +12,6 @@ if os.getenv("ASSISTANT_NVIM_SLEEP_MS") == nil then
 else
 	sleep_ms = tonumber(os.getenv("ASSISTANT_NVIM_SLEEP_MS"))
 end
-print("sleep_ms " .. sleep_ms)
 
 local consume_chunk = function(chunk)
 	local result = {}
@@ -52,6 +51,8 @@ local make_request = function(messages, sender)
 	local request = http.new_from_uri(anthropic_url)
 	request.headers:delete(":method")
 	request.headers:upsert(":method", "POST")
+	-- hack to make sure the headers with starting with `:` is first
+	-- as that is a requirement for this library
 	request.headers:sort()
 	request.headers:append("anthropic-version", "2023-06-01")
 	request.headers:append("x-api-key", api_key)
@@ -122,7 +123,6 @@ local thread = co.create(function()
 			if value == "" then
 				return
 			end
-			--print(value)
 			io.write(value)
 			io.flush()
 		end)

@@ -3,6 +3,7 @@ local M = {}
 M.options = {}
 M._options = nil
 M.api_key_name = "ASSISTANT_NVIM_API_KEY"
+M.options.render_hook = function(...) end
 M.namespace = vim.api.nvim_create_namespace("ai-assistant")
 
 function M.setup(options)
@@ -28,8 +29,6 @@ function M._setup()
 		"lua ",
 		"query_assistant.lua"
 	)
-
-	print(vim.inspect(M.options))
 end
 --M.setup()
 return M

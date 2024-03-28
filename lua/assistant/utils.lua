@@ -33,9 +33,10 @@ M.async_write_to_stddata = function(filename, data)
 	return status, msg
 end
 
-M.write_lines_to_buffer = function(winid, bufnr, lines)
+M.write_lines_to_buffer = function(winid, bufnr, lines, render_hook)
 	local all_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
+	local current_winid = vim.api.nvim_get_current_win()
 	local last_row = #all_lines
 	local last_row_content = all_lines[last_row]
 	local last_col = string.len(last_row_content)
@@ -48,12 +49,16 @@ M.write_lines_to_buffer = function(winid, bufnr, lines)
 	local new_last_row = last_row + #split_lines - 1
 	vim.api.nvim_win_set_cursor(winid, { new_last_row, 0 })
 	vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
+
+	render_hook(current_winid, winid, bufnr)
 end
-M.write_to_buffer = function(winid, bufnr, text)
+
+M.write_to_buffer = function(winid, bufnr, text, render_hook)
 	if text == "" or text:len() == 0 then
 		return
 	end
 	local all_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+	local current_winid = vim.api.nvim_get_current_win()
 
 	local last_row = #all_lines
 	local last_row_content = all_lines[last_row]
@@ -67,6 +72,7 @@ M.write_to_buffer = function(winid, bufnr, text)
 	local new_last_row = last_row + #text - 1
 	vim.api.nvim_win_set_cursor(winid, { new_last_row, 0 })
 	vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
+	render_hook(current_winid, winid, bufnr)
 end
 
 M.get_path_to_query = function()

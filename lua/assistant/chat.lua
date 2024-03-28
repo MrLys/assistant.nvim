@@ -36,7 +36,12 @@ function Chat:add_user_prompt_to_chat()
 	table.insert(self.messages, { role = "user", content = message })
 	buffer_message = buffer_message .. "## You:" .. "\n" .. message .. "\n"
 	local message_as_lines = vim.split(buffer_message, "\n")
-	utils.write_lines_to_buffer(self.top_popup.winid, self.top_popup.bufnr, message_as_lines)
+	utils.write_lines_to_buffer(
+		self.top_popup.winid,
+		self.top_popup.bufnr,
+		message_as_lines,
+		config.options.render_hook
+	)
 	utils.async_write_to_stddata(".chat", json.encode(self.messages))
 end
 
@@ -76,12 +81,17 @@ function Chat:input_enter_fn()
 				chat_content = "## Assistant:" .. "\n" .. response
 				first = false
 				local lines = vim.split(chat_content, "\r")
-				utils.write_lines_to_buffer(self.top_popup.winid, self.top_popup.bufnr, lines)
+				utils.write_lines_to_buffer(
+					self.top_popup.winid,
+					self.top_popup.bufnr,
+					lines,
+					config.options.render_hook
+				)
 			else
 				chat_content = response
 				local text = chat_content:gsub("\r", "\n")
 				if string.match(text, "[^\n]") ~= nil then
-					utils.write_to_buffer(self.top_popup.winid, self.top_popup.bufnr, text)
+					utils.write_to_buffer(self.top_popup.winid, self.top_popup.bufnr, text, config.options.render_hook)
 				end
 			end
 		end,
