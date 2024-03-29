@@ -1,8 +1,8 @@
 local utils = require("assistant.utils")
 local M = {}
 local default = {
-	move_to_chat_key = "<c-h>",
-	move_to_input_key = "<c-l>",
+	move_to_chat_key = "<c-k>",
+	move_to_input_key = "<c-j>",
 }
 M.options = {}
 M._options = nil
@@ -10,8 +10,6 @@ M.api_key_name = "ASSISTANT_NVIM_API_KEY"
 M.options.render_hook = function(...) end
 M.namespace = vim.api.nvim_create_namespace("ai-assistant")
 
-M.options.move_to_chat_key = "<c-k>"
-M.options.move_to_input_key = "<c-j>"
 function M.setup(options)
 	M._options = options
 	M._setup()
