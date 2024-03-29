@@ -49,20 +49,29 @@ rm -rf cqueues-rel-20200726 rel-20200726.tar.gz
 ```lua
 return {
   "mrlys/assistant.nvim",
-  opts = {
-    api_key = "<api-key-here>",
-    sleep_ms = 25,
-    render_hook = function(...) end,
-  },
-  build = "make all"
-  keys = {
-    {
-      "<leader>t",
-      mode = { "n", "x", "o" },
-      function()
-        require("assistant"):ToggleAssistant()
-      end,
-      desc = "Open or close Assistant chat window",
+    opts = {
+      api_key = "<ANTHROPIC_CLAUDE_API_KEY>",
+      sleep_ms = 25,
+      move_to_input_key = "<c-j>",
+      move_to_chat_key = "<c-k>",
+    },
+    cmd = {
+      "AssistantToggle",
+      "AssistantChat",
+      "AssistantInput",
+    },
+    build = "make all",
+    keys = {
+      {
+        "<leader>t",
+        "<cmd>AssistantToggle<cr>",
+        desc = "Toggle assistant chat window",
+      },
+      {
+        "<leader>th",
+        "<cmd>AssistantHide<cr>",
+        desc = "Hide assistant chat window",
+      },
     },
   },
 }
@@ -70,7 +79,7 @@ return {
 The api key can also be passed as a function. This makes for a lot of fun initializations.
 E.g:
 ```lua
-turn {
+return {
   "mrlys/assistant.nvim",
   opts = {
     api_key = function() return os.getenv("OPENAI_API_KEY")end,
@@ -83,7 +92,7 @@ turn {
       "<leader>t",
       mode = { "n", "x", "o" },
       function()
-        require("assistant"):ToggleAssistant()
+        require("assistant"):AssistantToggle()
       end,
       desc = "Open or close Assistant chat window",
     },
@@ -93,7 +102,7 @@ turn {
 or
 
 ```lua
-turn {
+return {
   "mrlys/assistant.nvim",
   opts = {
     api_key = function() 
@@ -115,4 +124,15 @@ turn {
   },
 }
 ```
+You can also use a render_hook to modify the output of the assistant. This is useful for adding custom formatting or for adding custom commands to the assistant. The render_hook is a function that takes the assistant input and output window id argument. You can for instance trigger a markdown rendering plugin to render the assistant output in markdown. E.g: 
+```lua
+render_hook = function(input_winid, chat_winid, _)
+  local success, ui = pcall(require, "render-markdown.ui")
+  if success then
+    vim.api.nvim_set_current_win(chat_winid)
+    ui.refresh()
+    vim.api.nvim_set_current_win(input_winid)
+  end
+end,
+
 

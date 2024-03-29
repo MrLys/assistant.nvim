@@ -1,11 +1,17 @@
 local utils = require("assistant.utils")
 local M = {}
+local default = {
+	move_to_chat_key = "<c-h>",
+	move_to_input_key = "<c-l>",
+}
 M.options = {}
 M._options = nil
 M.api_key_name = "ASSISTANT_NVIM_API_KEY"
 M.options.render_hook = function(...) end
 M.namespace = vim.api.nvim_create_namespace("ai-assistant")
 
+M.options.move_to_chat_key = "<c-k>"
+M.options.move_to_input_key = "<c-j>"
 function M.setup(options)
 	M._options = options
 	M._setup()
@@ -18,7 +24,7 @@ function M._setup()
 	if type(M._options.api_key) == "function" then
 		M._options.api_key = M._options.api_key()
 	end
-	M.options = vim.tbl_deep_extend("force", {}, {}, M.options or {}, M._options or {})
+	M.options = vim.tbl_deep_extend("force", {}, {}, M.options or default, M._options or {})
 	assert(M.options.api_key ~= nil, "Api key  needs to be present!")
 
 	M.options.cmd = utils.to_cmd_line_props(

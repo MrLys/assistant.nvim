@@ -4,11 +4,12 @@ local Object = require("nui.object")
 local json = require("cjson")
 local config = require("assistant.config")
 local utils = require("assistant.utils")
-
 ---@class Chat
 ---@field ns_id integer
 ---@field messages {}
 ---@field shown boolean
+---@field top_popup Popup
+---@field bottom_input Popup
 Chat = Object("Chat")
 function Chat:init(ns_id)
 	self.ns_id = ns_id
@@ -45,6 +46,12 @@ function Chat:add_user_prompt_to_chat()
 	utils.async_write_to_stddata(".chat", json.encode(self.messages))
 end
 
+function Chat:move_to_input_buffer()
+	vim.api.nvim_set_current_win(self.bottom_input.winid)
+end
+function Chat:move_to_top_buffer()
+	vim.api.nvim_set_current_win(self.top_popup.winid)
+end
 function Chat:input_enter_fn()
 	local first = true
 	local assistant_response = ""
@@ -143,6 +150,21 @@ function Chat:create_layout()
 			Layout.Box(self.bottom_input, { size = "50%" }),
 		}, { dir = "col" })
 	)
+	self.bottom_input:map("n", "<cr>", function()
+		self:input_enter_fn()
+	end, map_options)
+	self.bottom_input:map("n", config.options.move_to_chat_key, function()
+		self:move_to_top_buffer()
+	end, map_options)
+	self.top_popup:map("n", config.options.move_to_chat_key, function()
+		self:move_to_top_buffer()
+	end, map_options)
+	self.top_popup:map("n", config.options.move_to_input_key, function()
+		self:move_to_input_buffer()
+	end, map_options)
+	self.bottom_input:map("n", config.options.move_to_input_key, function()
+		self:move_to_input_buffer()
+	end, map_options)
 	self.bottom_input:map("i", "<c-cr>", "<esc><cr>", { nowait = true })
 	self.bottom_input:map("n", "<c-x>", function()
 		self:input_quit()
@@ -150,11 +172,11 @@ function Chat:create_layout()
 	self.bottom_input:map("i", "<c-x>", function()
 		self:input_quit()
 	end, map_options)
-	self.bottom_input:map("n", "<cr>", function()
-		self:input_enter_fn()
-	end, map_options)
 end
 
+function Chat:show()
+	self.layout:show()
+end
 function Chat:hide()
 	self.layout:hide()
 end
