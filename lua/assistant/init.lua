@@ -8,8 +8,8 @@ M.assistantToggled = false
 
 M.setup = function(opts)
 	M.namespace = vim.api.nvim_create_namespace("assistant.nvim")
-	M.chat = Chat(M.namespace)
 	config.setup(opts)
+	M.chat = Chat(M.namespace)
 	return M
 end
 
